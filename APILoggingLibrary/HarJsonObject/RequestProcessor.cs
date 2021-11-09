@@ -1,17 +1,13 @@
-﻿using APILoggingLibrary.HarJsonObject;
-using Microsoft.AspNetCore.Http;
-using System;
+﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace APILoggingLibrary.HarJsonObject
 {
     class RequestProcessor
     {
-        HttpRequest _request = null;
-        string _requestBodyData = null;
+        private HttpRequest _request = null;
+        private string _requestBodyData = null;
+
         public RequestProcessor(HttpRequest request, string requestBodyData)
         {
             _request = request;
@@ -22,47 +18,78 @@ namespace APILoggingLibrary.HarJsonObject
         {
             Request requestObj = new Request();
             requestObj.headers = GetHeaders();
-            requestObj.headersSize = GetHeadersSize();
+            requestObj.headersSize = GetHeadersSize().ToString();
+            requestObj.postData = _requestBodyData;
             requestObj.bodySize = _requestBodyData.Length.ToString();
+            requestObj.queryString = GetQueryStrings();
+            requestObj.cookies = GetCookies();
+            requestObj.method = _request.Method;
+            requestObj.url = _request.Scheme + "://" + _request.Host.Host + ":" + _request.Host.Port + "" + _request.Path;
+            requestObj.httpVersion = _request.Protocol;
             return requestObj;
         }
 
         private List<Headers> GetHeaders()
         {
             List<Headers> headers = new List<Headers>();
-            foreach (var reqHeader in _request.Headers)
+            if (_request.Headers.Count > 0)
             {
-                Headers header = new Headers();
-                header.name = reqHeader.Key;
-                header.value = reqHeader.Value;
-                headers.Add(header); 
+                foreach (var reqHeader in _request.Headers)
+                {
+                    Headers header = new Headers();
+                    header.name = reqHeader.Key;
+                    header.value = reqHeader.Value;
+                    headers.Add(header);
+                }
             }
             return headers;
         }
-        private string GetHeadersSize()
+        private long GetHeadersSize()
         {
-            Int64 headersSize = 0;
-            foreach (var reqHeader in _request.Headers)
+            long headersSize = 0;
+            if (_request.Headers.Count > 0)
             {
-                headersSize += (Int64) reqHeader.Value.ToString().Length;
+                foreach (var reqHeader in _request.Headers)
+                {
+                    headersSize += reqHeader.Value.ToString().Length;
+                }
             }
-            return headersSize.ToString();
+            return headersSize;
         }
-
         private List<QueryString> GetQueryStrings()
         {
             List<QueryString> queryStrings = new List<QueryString>();
-            //foreach (var queryString in _request.QueryString.)
-            //{
-            //    Headers header = new Headers();
-            //    header.name = reqHeader.Key;
-            //    header.value = reqHeader.Value;
-            //    headers.Add(header);
-            //}
+            if (_request.QueryString.HasValue)
+            {
+                Microsoft.AspNetCore.Http.QueryString queryString = _request.QueryString;
+                string[] qss = queryString.Value.Replace("?", "").Split("&");
+
+                foreach (string qs in qss)
+                {
+                    string[] a = qs.Split("=");
+                    QueryString qString = new QueryString();
+                    qString.name = a[0];
+                    qString.value = a[1];
+                    queryStrings.Add(qString);
+                }
+            }
             return queryStrings;
         }
-
-
+        private List<Cookies> GetCookies()
+        {
+            List<Cookies> cookies = new List<Cookies>();
+            if (_request.Cookies.Count > 0)
+            {
+                foreach (var reqCookie in _request.Cookies)
+                {
+                    Cookies cookie = new Cookies();
+                    cookie.name = reqCookie.Key;
+                    cookie.value = reqCookie.Value;
+                    cookies.Add(cookie);
+                }
+            }
+            return cookies;
+        }
 
     }
 }
