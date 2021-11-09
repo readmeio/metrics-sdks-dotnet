@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using APILoggingLibrary.HarJsonObject;
+using APILoggingLibrary.HarJsonObjectModels;
 
 namespace APILoggingLibrary
 {
@@ -39,6 +39,8 @@ namespace APILoggingLibrary
             //request1.AddParameter("application/json", jsonObj, RestSharp.ParameterType.RequestBody);
             //RestSharp.IRestResponse response1 = client1.Execute(request1);
 
+            DateTime requestTime = DateTime.UtcNow;
+
             context.Request.EnableBuffering();
 
             string requestBodyData = await ProcessRequestBody(context);
@@ -60,6 +62,10 @@ namespace APILoggingLibrary
 
                 await responseBody.CopyToAsync(originalBodyStream);
             }
+
+            TimeSpan time = DateTime.UtcNow.Subtract(requestTime);
+            string startDateTime = DateTime.UtcNow.ToString("YYYY-MM-DDThh:mm:ss.sTZD");
+            //startedDateTime [string] -  (ISO 8601 - YYYY-MM-DDThh:mm:ss.sTZD, e.g. 2009-07-24T19:20:30.45+01:00).
         }
 
         private async Task<string> ProcessRequestBody(HttpContext context)

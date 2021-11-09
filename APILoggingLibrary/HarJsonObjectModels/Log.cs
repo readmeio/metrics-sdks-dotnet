@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace APILoggingLibrary.HarJsonObject
+namespace APILoggingLibrary.HarJsonObjectModels
 {
     class Log
     {

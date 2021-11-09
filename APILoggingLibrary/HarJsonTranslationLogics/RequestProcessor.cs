@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
-namespace APILoggingLibrary.HarJsonObject
+namespace APILoggingLibrary.HarJsonObjectModels
 {
     class RequestProcessor
     {
@@ -56,18 +56,18 @@ namespace APILoggingLibrary.HarJsonObject
             }
             return headersSize;
         }
-        private List<QueryString> GetQueryStrings()
+        private List<QueryStrings> GetQueryStrings()
         {
-            List<QueryString> queryStrings = new List<QueryString>();
+            List<QueryStrings> queryStrings = new List<QueryStrings>();
             if (_request.QueryString.HasValue)
             {
-                Microsoft.AspNetCore.Http.QueryString queryString = _request.QueryString;
+                QueryString queryString = _request.QueryString;
                 string[] qss = queryString.Value.Replace("?", "").Split("&");
 
                 foreach (string qs in qss)
                 {
                     string[] a = qs.Split("=");
-                    QueryString qString = new QueryString();
+                    QueryStrings qString = new QueryStrings();
                     qString.name = a[0];
                     qString.value = a[1];
                     queryStrings.Add(qString);

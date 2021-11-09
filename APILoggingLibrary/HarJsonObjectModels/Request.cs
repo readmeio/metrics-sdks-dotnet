@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace APILoggingLibrary.HarJsonObject
+namespace APILoggingLibrary.HarJsonObjectModels
 {
     class Request
     {
         public List<Headers> headers { get; set; }
         public string headersSize { get; set; }
         public string bodySize { get; set; }
-        public List<QueryString> queryString { get; set; }
+        public List<QueryStrings> queryString { get; set; }
         public string postData { get; set; }
         public List<Cookies> cookies { get; set; }
         public string method { get; set; }

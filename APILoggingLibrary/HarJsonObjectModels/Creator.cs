@@ -1,4 +1,4 @@
-﻿namespace APILoggingLibrary.HarJsonObject
+﻿namespace APILoggingLibrary.HarJsonObjectModels
 {
     class Creator
     {
