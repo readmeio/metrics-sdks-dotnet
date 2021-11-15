@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using APILoggingLibrary;
 
 namespace RequestResponseLoggingMiddlewareAPI
@@ -12,7 +11,7 @@ namespace RequestResponseLoggingMiddlewareAPI
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            Configuration = configuration; 
         }
 
         public IConfiguration Configuration { get; }
@@ -34,7 +33,7 @@ namespace RequestResponseLoggingMiddlewareAPI
             string apiKey = "kiy5tLMfG2vTegvTzObjyuVqURHptTNG";
             string label = "John Smith";
             string email = "johnsmithid012@gmail.com";
-
+            
             app.UseMiddleware<RequestResponseLogger>(apiKey, label, email);
 
 

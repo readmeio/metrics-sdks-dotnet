@@ -6,21 +6,20 @@ namespace APILoggingLibrary.HarJsonObjectModels
     class RequestProcessor
     {
         private HttpRequest _request = null;
-        private string _requestBodyData = null;
+        private PostData _postData = null;
 
-        public RequestProcessor(HttpRequest request, string requestBodyData)
+        public RequestProcessor(HttpRequest request, PostData postData)
         {
             _request = request;
-            _requestBodyData = requestBodyData;
+            _postData = postData;
         }
 
         public Request ProcessRequest()
         {
             Request requestObj = new Request();
             requestObj.headers = GetHeaders();
-            requestObj.headersSize = GetHeadersSize().ToString();
-            requestObj.postData = _requestBodyData;
-            requestObj.bodySize = _requestBodyData.Length.ToString();
+            requestObj.headersSize = GetHeadersSize();
+            requestObj.postData = _postData;
             requestObj.queryString = GetQueryStrings();
             requestObj.cookies = GetCookies();
             requestObj.method = _request.Method;

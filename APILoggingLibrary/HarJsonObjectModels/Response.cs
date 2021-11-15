@@ -11,7 +11,7 @@ namespace APILoggingLibrary.HarJsonObjectModels
         public string httpVersion { get; set; }
         public List<Cookies> cookies { get; set; }
         public string redirectURL { get; set; }
-        public string headersSize { get; set; }
-        public string bodySize { get; set; }
+        public long headersSize { get; set; }
+        public long bodySize { get; set; }
     }
 }

@@ -1,10 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace APILoggingLibrary.HarJsonObjectModels
 {
@@ -23,11 +18,11 @@ namespace APILoggingLibrary.HarJsonObjectModels
         {
             Response responseObj = new Response();
             responseObj.headers = GetHeaders();
-            responseObj.headersSize = GetHeadersSize().ToString();
+            responseObj.headersSize = GetHeadersSize();
             responseObj.status = _response.StatusCode.ToString(); ;
             responseObj.statusText = GetStatusTextByStatusCode(_response.StatusCode);
             responseObj.content = GetContent();
-            responseObj.bodySize = _responseBodyData.Length.ToString();
+            responseObj.bodySize = _responseBodyData.Length;
             
             return responseObj;
 
@@ -53,9 +48,9 @@ namespace APILoggingLibrary.HarJsonObjectModels
             }
             return headers;
         }
-        private double GetHeadersSize()
+        private long GetHeadersSize()
         {
-            double headersSize = 0;
+            long headersSize = 0;
             if (_response.Headers.Count > 0)
             {
                 foreach (var reqHeader in _response.Headers)
@@ -70,7 +65,7 @@ namespace APILoggingLibrary.HarJsonObjectModels
         {
             Content content = new Content();
             content.text = _responseBodyData;
-            content.size = _responseBodyData.Length.ToString();
+            content.size = _responseBodyData.Length;
             content.mimeType = _response.ContentType;
             return content;
         }

@@ -1,14 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using APILoggingLibrary.HarJsonObjectModels;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using APILoggingLibrary.HarJsonObjectModels;
+using System.Linq;
 
 namespace APILoggingLibrary
 {
@@ -39,41 +36,91 @@ namespace APILoggingLibrary
             //request1.AddParameter("application/json", jsonObj, RestSharp.ParameterType.RequestBody);
             //RestSharp.IRestResponse response1 = client1.Execute(request1);
 
-            DateTime requestTime = DateTime.UtcNow;
-
-            context.Request.EnableBuffering();
-
-            string requestBodyData = await ProcessRequestBody(context);
-            RequestProcessor requestProcessor = new RequestProcessor(context.Request, requestBodyData);
-            Request request = requestProcessor.ProcessRequest();
-
-            Response response = null;
-
-            var originalBodyStream = context.Response.Body;
-            using (var responseBody = new MemoryStream())
+            if (!context.Request.Path.Value.Contains("favicon.ico"))
             {
-                context.Response.Body = responseBody;
+                DateTime requestTime = DateTime.UtcNow;
 
-                await _next.Invoke(context);
+                context.Request.EnableBuffering();
 
-                string responseBodyData = await ProcessResponseBody(context);
-                ResponseProcessor responseProcessor = new ResponseProcessor(context.Response, responseBodyData);
-                response = responseProcessor.ProcessResponse();
+                PostData postData = new PostData();
+                if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
+                {
+                    List<Params> @params = await ProcessRequestBody(context);
+                    if (@params.Any())
+                    {
+                        postData.mimeType = context.Request.ContentType;
+                        postData.comment = null;
+                        postData.text = null;
+                        postData.@params = @params;
+                    }   
+                }
 
-                await responseBody.CopyToAsync(originalBodyStream);
+                RequestProcessor requestProcessor = new RequestProcessor(context.Request, postData);
+                Request request = requestProcessor.ProcessRequest();
+
+                Response response = null;
+
+                var originalBodyStream = context.Response.Body;
+                using (var responseBody = new MemoryStream())
+                {
+                    context.Response.Body = responseBody;
+
+                    await _next.Invoke(context);
+
+                    string responseBodyData = await ProcessResponseBody(context);
+                    ResponseProcessor responseProcessor = new ResponseProcessor(context.Response, responseBodyData);
+                    response = responseProcessor.ProcessResponse();
+
+                    await responseBody.CopyToAsync(originalBodyStream);
+                }
+
+                Entries entries = new Entries(
+                    pageref: context.Request.Scheme + "://" + context.Request.Host.Host + "" + context.Request.Path,
+                    startedDateTime: requestTime.ToString("yyyy-mm-ddThh:mm:ss.s+hh:mm"),
+                    time: DateTime.UtcNow.Subtract(requestTime).TotalMilliseconds,
+                    cache: null,
+                    timing: null,
+                    request: request,
+                    response: response
+                );
+
+                Log log = new Log(new Creator("readmeio", "5.0.0"), new List<Entries> { entries });
+
+                Root root = new Root(
+                    Guid.NewGuid().ToString(),
+                    true,
+                    context.Connection.RemoteIpAddress.ToString(),
+                    new Group(_email, _userName, _apiKey),
+                    new RequestMain(log)
+                    );
+
+                string harJsonObj = JsonConvert.SerializeObject(new List<Root> { root });
+
             }
 
-            TimeSpan time = DateTime.UtcNow.Subtract(requestTime);
-            string startDateTime = DateTime.UtcNow.ToString("YYYY-MM-DDThh:mm:ss.sTZD");
-            //startedDateTime [string] -  (ISO 8601 - YYYY-MM-DDThh:mm:ss.sTZD, e.g. 2009-07-24T19:20:30.45+01:00).
         }
 
-        private async Task<string> ProcessRequestBody(HttpContext context)
+        private async Task<List<Params>> ProcessRequestBody(HttpContext context)
         {
             StreamReader requestBodyReader = new StreamReader(context.Request.Body);
             string requestBodyData = await requestBodyReader.ReadToEndAsync();
+            if (requestBodyData == null || requestBodyData == "")
+            {
+                context.Request.Body.Position = 0;
+                return null;
+            }
+                
+            string[] splitKeyValuesList = requestBodyData.Replace("{", "").Replace("}", "").Replace("\r\n", "").Replace("\"","").Split(",");
+            List<Params> @params = new List<Params>();
+            foreach(string KeyValues in splitKeyValuesList)
+            {
+                string[] nameValue = KeyValues.Trim().Split(':');
+                string name = nameValue[0];
+                string value = nameValue[1];
+                @params.Add(new Params(name, value, null, context.Request.ContentType, null));
+            }
             context.Request.Body.Position = 0;
-            return requestBodyData;
+            return @params;
         }
         private async Task<string> ProcessResponseBody(HttpContext context)
         {
@@ -85,12 +132,8 @@ namespace APILoggingLibrary
         }
 
 
-
-
         protected void GetIPAddress(HttpRequest request)
         {
-            
-            //System.Web.HttpContext context = System.Web.HttpContext.Current;
             //string ipAddress = request.ServerVariables["HTTP_X_FORWARDED_FOR"];
 
             //if (!string.IsNullOrEmpty(ipAddress))
@@ -105,16 +148,7 @@ namespace APILoggingLibrary
             //return context.Request.ServerVariables["REMOTE_ADDR"];
         }
 
-        //private string GetGuid()
-        //{
-        //    var assembly = typeof(Program).Assembly;
-        //    var attribute = (GuidAttribute)assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0];
-        //    var id = attribute.Value;
-        //    var applicationId = ((GuidAttribute)typeof(Program).Assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0]).Value;
-        //    return applicationId;
-        //}
-    
-    
+
     
     }
 
