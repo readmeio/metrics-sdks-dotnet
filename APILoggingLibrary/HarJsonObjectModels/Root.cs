@@ -8,13 +8,5 @@
         public Group group { get; set; }
         public RequestMain request { get; set; }
 
-        public Root(string uuid, bool development, string clientIPAddress, Group group, RequestMain requestMain)
-        {
-            _id = uuid;
-            this.development = development;
-            this.clientIPAddress = clientIPAddress;
-            this.group = group;
-            this.request = requestMain;
-        }
     }
 }

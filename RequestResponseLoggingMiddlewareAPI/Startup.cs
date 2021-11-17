@@ -30,9 +30,9 @@ namespace RequestResponseLoggingMiddlewareAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            string apiKey = "kiy5tLMfG2vTegvTzObjyuVqURHptTNG";
-            string label = "John Smith";
-            string email = "johnsmithid012@gmail.com";
+            string apiKey = "WtBnYQah8W8tMgf8EhWSlBUSHStWy3Lw";
+            string label = "edjohnson";
+            string email = "dev.ed.readme@outlook.com";
             
             app.UseMiddleware<RequestResponseLogger>(apiKey, label, email);
 

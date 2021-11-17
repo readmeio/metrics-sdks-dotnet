@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace APILoggingLibrary.HarJsonObjectModels
 {
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     class PostData
     {
         public string mimeType { get; set; }
@@ -10,16 +12,5 @@ namespace APILoggingLibrary.HarJsonObjectModels
 
         public List<Params> @params { get; set; }
 
-        public PostData()
-        {
-
-        }
-        public PostData(string mimeType, string text, string comment, List<Params> @params)
-        {
-            this.mimeType = mimeType;
-            this.text = text;
-            this.comment = comment;
-            this.@params = @params;
-        }
     }
 }

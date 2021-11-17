@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace APILoggingLibrary.HarJsonObjectModels
 {
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     class Response
     {
         public List<Headers> headers { get; set; }
         public Content content { get; set; }
-        public string status { get; set; }
+        public int status { get; set; }
         public string statusText { get; set; }
         public string httpVersion { get; set; }
         public List<Cookies> cookies { get; set; }

@@ -1,5 +1,8 @@
-﻿namespace APILoggingLibrary.HarJsonObjectModels
+﻿using Newtonsoft.Json;
+
+namespace APILoggingLibrary.HarJsonObjectModels
 {
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     class Content
     {
         public string text { get; set; }

@@ -19,7 +19,7 @@ namespace APILoggingLibrary.HarJsonObjectModels
             Response responseObj = new Response();
             responseObj.headers = GetHeaders();
             responseObj.headersSize = GetHeadersSize();
-            responseObj.status = _response.StatusCode.ToString(); ;
+            responseObj.status = _response.StatusCode;
             responseObj.statusText = GetStatusTextByStatusCode(_response.StatusCode);
             responseObj.content = GetContent();
             responseObj.bodySize = _responseBodyData.Length;
