@@ -1,6 +1,6 @@
 ﻿namespace APILoggingLibrary.HarJsonObjectModels
 {
-    class Group
+    public class Group
     {
         public string email { get; set; }
         public string label { get; set; }

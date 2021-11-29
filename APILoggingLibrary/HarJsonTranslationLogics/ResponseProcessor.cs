@@ -1,17 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace APILoggingLibrary.HarJsonObjectModels
 {
     class ResponseProcessor
     {
-        private HttpResponse _response = null;
-        private string _responseBodyData = null;
+        private readonly HttpResponse _response;
+        private readonly string _responseBodyData;
+        private readonly ConfigValues _configValues;
 
-        public ResponseProcessor(HttpResponse response, string responseBodyData)
+        public ResponseProcessor(HttpResponse response, string responseBodyData, ConfigValues configValues)
         {
             _response = response;
             _responseBodyData = responseBodyData;
+            _configValues = configValues;
         }
 
         public Response ProcessResponse()
@@ -22,15 +25,8 @@ namespace APILoggingLibrary.HarJsonObjectModels
             responseObj.status = _response.StatusCode;
             responseObj.statusText = GetStatusTextByStatusCode(_response.StatusCode);
             responseObj.content = GetContent();
-            responseObj.bodySize = _responseBodyData.Length;
-            
+            responseObj.bodySize = _responseBodyData.Length;          
             return responseObj;
-
-           
-            //--httpVersion
-            //--cookies
-            //--redirectURL
-      
         }
 
         private List<Headers> GetHeaders()
@@ -38,12 +34,35 @@ namespace APILoggingLibrary.HarJsonObjectModels
             List<Headers> headers = new List<Headers>();
             if (_response.Headers.Count > 0)
             {
-                foreach (var reqHeader in _response.Headers)
+                foreach (var resHeader in _response.Headers)
                 {
-                    Headers header = new Headers();
-                    header.name = reqHeader.Key;
-                    header.value = reqHeader.Value;
-                    headers.Add(header);
+                    if (!_configValues.options.isAllowListEmpty)
+                    {
+                        if (CheckAllowList(resHeader.Key))
+                        {
+                            Headers header = new Headers();
+                            header.name = resHeader.Key;
+                            header.value = resHeader.Value;
+                            headers.Add(header);
+                        }
+                    }
+                    else if (!_configValues.options.isDenyListEmpty)
+                    {
+                        if (!CheckDenyList(resHeader.Key))
+                        {
+                            Headers header = new Headers();
+                            header.name = resHeader.Key;
+                            header.value = resHeader.Value;
+                            headers.Add(header);
+                        }
+                    }  
+                    else
+                    {
+                        Headers header = new Headers();
+                        header.name = resHeader.Key;
+                        header.value = resHeader.Value;
+                        headers.Add(header);
+                    }
                 }
             }
             return headers;
@@ -70,23 +89,6 @@ namespace APILoggingLibrary.HarJsonObjectModels
             return content;
         }
 
-
-
-        private List<Cookies> GetCookies()
-        {
-            List<Cookies> cookies = new List<Cookies>();
-            //if (_response.Cookies)
-            //{
-            //    foreach (var reqCookie in _response.Cookies)
-            //    {
-            //        Cookies cookie = new Cookies();
-            //        cookie.name = reqCookie.Key;
-            //        cookie.value = reqCookie.Value;
-            //        cookies.Add(cookie);
-            //    }
-            //}
-            return cookies;
-        }
 
         private string GetStatusTextByStatusCode(int statusCode)
         {
@@ -141,8 +143,9 @@ namespace APILoggingLibrary.HarJsonObjectModels
             }
             return "";
         }
- 
 
+        private bool CheckAllowList(string key) => (_configValues.options.allowList.Any(v => v == key)) ? true : false;
+        private bool CheckDenyList(string key) => (_configValues.options.denyList.Any(v => v == key)) ? true : false;
 
     }
 }

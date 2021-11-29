@@ -1,7 +1,7 @@
-﻿using APILoggingLibrary.HarJsonObjectModels;
-using APILoggingLibrary.HarJsonTranslationLogics;
+﻿using APILoggingLibrary.HarJsonTranslationLogics;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace APILoggingLibrary
@@ -9,34 +9,34 @@ namespace APILoggingLibrary
     public class RequestResponseLogger
     {
         private readonly RequestDelegate _next;
-        private readonly string _apiKey;
-        private readonly string _userName;
-        private readonly string _email;
+        private readonly IConfiguration _configuration;
 
-        public RequestResponseLogger(RequestDelegate next, string apiKey, string userName, string email)
+        public RequestResponseLogger(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
-            _apiKey = apiKey;
-            _userName = userName;
-            _email = email;            
+            _configuration = configuration;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
             if (!context.Request.Path.Value.Contains("favicon.ico"))
-            {             
-                context.Request.EnableBuffering();
-                HarJsonBuilder harJsonBuilder = new HarJsonBuilder(_next, context, _userName, _email);
+            {
+                string apiKey = _configuration.GetSection("readme").GetSection("apiKey").Value;
+                if(apiKey.Trim() != null || apiKey.Trim() != "")
+                {
+                    context.Request.EnableBuffering();
+                    HarJsonBuilder harJsonBuilder = new HarJsonBuilder(_next, context, _configuration);
 
-                string harJsonObj = await harJsonBuilder.BuildHar();
-                ReadmeApiCaller readmeApiCaller = new ReadmeApiCaller(harJsonObj, _apiKey);
-                //string readmeResponse = await readmeApiCaller.SendHarObjToReadmeApi();
-            
+                    string harJsonObj = await harJsonBuilder.BuildHar();
+                    Debug.Write(harJsonObj);
+                    ReadmeApiCaller readmeApiCaller = new ReadmeApiCaller(harJsonObj, apiKey);
+                    //string readmeResponse = await readmeApiCaller.SendHarObjToReadmeApi();
+                }
             }
         }
 
-        
-    
+
+
     }
 
 }

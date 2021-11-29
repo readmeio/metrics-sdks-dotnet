@@ -1,41 +1,132 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace APILoggingLibrary.HarJsonObjectModels
 {
     class RequestProcessor
     {
-        private HttpRequest _request = null;
-        private PostData _postData = null;
+        private readonly HttpRequest _request;
+        private readonly ConfigValues _configValues;
 
-        public RequestProcessor(HttpRequest request, PostData postData)
+        public RequestProcessor(HttpRequest request, ConfigValues configValues)
         {
             _request = request;
-            _postData = postData;
+            _configValues = configValues;
         }
 
-        public Request ProcessRequest()
+        public async Task<Request> ProcessRequest()
         {
             Request requestObj = new Request();
             requestObj.headers = GetHeaders();
             requestObj.headersSize = GetHeadersSize();
-            requestObj.postData = _postData;
             requestObj.queryString = GetQueryStrings();
             requestObj.cookies = GetCookies();
             requestObj.method = _request.Method;
             requestObj.url = _request.Scheme + "://" + _request.Host.Host + ":" + _request.Host.Port + "" + _request.Path;
             requestObj.httpVersion = _request.Protocol;
+            requestObj.postData = await GetPostData();
+
             return requestObj;
         }
 
+        private async Task<PostData> GetPostData()
+        {     
+            PostData postData = new PostData();
+            postData.mimeType = _request.ContentType;
+            if(_request.ContentType == "application/x-www-form-urlencoded")
+            {
+                List<Params> @params = new List<Params>();
+                if(_request.Form.Keys.Count > 0)
+                {
+                    foreach (string key in _request.Form.Keys)
+                    {
+                        if(!_configValues.options.isAllowListEmpty)
+                        {
+                            if(CheckAllowList(key))
+                            {
+                                @params.Add(new Params { name = key, value = _request.Form[key] });
+                            }  
+                        }  
+                        else if(!_configValues.options.isDenyListEmpty)
+                        {
+                            if(!CheckDenyList(key))
+                            {
+                                @params.Add(new Params { name = key, value = _request.Form[key] });
+                            }
+                        }
+                        else
+                        {
+                            @params.Add(new Params { name = key, value = _request.Form[key] });
+                        }
+                    }
+                }
+                postData.@params = @params;
+            }
+            else if(_request.HasFormContentType)
+            {
+                List<Params> @params = new List<Params>();
+                if (_request.Form.Keys.Count > 0)
+                {
+                    foreach (string key in _request.Form.Keys)
+                    {
+                        if (!_configValues.options.isAllowListEmpty)
+                        {
+                            if (CheckAllowList(key))
+                            {
+                                @params.Add(new Params { name = key, value = _request.Form[key] });
+                            }
+                        }
+                        else if (!_configValues.options.isDenyListEmpty)
+                        {
+                            if (!CheckDenyList(key))
+                            {
+                                @params.Add(new Params { name = key, value = _request.Form[key] });
+                            }
+                        }
+                        else
+                        {
+                            @params.Add(new Params { name = key, value = _request.Form[key] });
+                        }
+                    }
+                }      
+                postData.@params = @params;
+            }
+            else if(_request.ContentType != null)
+            {
+                postData.text = await GetRequestBodyData();
+            }
+            return postData;
+        }
+
+        private bool CheckAllowList(string key) => (_configValues.options.allowList.Any(v => v == key)) ? true : false;
+        private bool CheckDenyList(string key) => (_configValues.options.denyList.Any(v => v == key)) ? true : false;
+
+
+        private async Task<string> GetRequestBodyData()
+        {
+            try
+            {
+                StreamReader requestBodyReader = new StreamReader(_request.Body);
+                string requestBodyData = await requestBodyReader.ReadToEndAsync();
+                _request.Body.Position = 0;
+                return requestBodyData;
+            }
+            catch (System.Exception)
+            {
+                return null;
+            }  
+        }
         private List<Headers> GetHeaders()
         {
             List<Headers> headers = new List<Headers>();
             if (_request.Headers.Count > 0)
             {
                 foreach (var reqHeader in _request.Headers)
-                {
+                {  
                     Headers header = new Headers();
                     header.name = reqHeader.Key;
                     header.value = reqHeader.Value;
@@ -59,18 +150,38 @@ namespace APILoggingLibrary.HarJsonObjectModels
         private List<QueryStrings> GetQueryStrings()
         {
             List<QueryStrings> queryStrings = new List<QueryStrings>();
-            if (_request.QueryString.HasValue)
+            if (_request.Query.Count > 0)
             {
-                QueryString queryString = _request.QueryString;
-                string[] qss = queryString.Value.Replace("?", "").Split("&");
-
-                foreach (string qs in qss)
+                var queryStings = _request.Query;
+                foreach(var qs in queryStings)
                 {
-                    string[] a = qs.Split("=");
-                    QueryStrings qString = new QueryStrings();
-                    qString.name = a[0];
-                    qString.value = a[1];
-                    queryStrings.Add(qString);
+                    if (!_configValues.options.isAllowListEmpty)
+                    {
+                        if (CheckAllowList(qs.Key))
+                        {
+                            QueryStrings qString = new QueryStrings();
+                            qString.name = qs.Key;
+                            qString.value = qs.Value;
+                            queryStrings.Add(qString);
+                        }
+                    }
+                    else if (!_configValues.options.isDenyListEmpty)
+                    {
+                        if (!CheckDenyList(qs.Key))
+                        {
+                            QueryStrings qString = new QueryStrings();
+                            qString.name = qs.Key;
+                            qString.value = qs.Value;
+                            queryStrings.Add(qString);
+                        }
+                    }   
+                    else
+                    {
+                        QueryStrings qString = new QueryStrings();
+                        qString.name = qs.Key;
+                        qString.value = qs.Value;
+                        queryStrings.Add(qString);
+                    }
                 }
             }
             return queryStrings;

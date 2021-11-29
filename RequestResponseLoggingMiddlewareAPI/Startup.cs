@@ -19,8 +19,8 @@ namespace RequestResponseLoggingMiddlewareAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
+            
             //services.AddSwaggerGen(c =>
             //{
             //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "RequestResponseLoggingMiddlewareAPI", Version = "v1" });
@@ -30,12 +30,8 @@ namespace RequestResponseLoggingMiddlewareAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            string apiKey = "WtBnYQah8W8tMgf8EhWSlBUSHStWy3Lw";
-            string label = "edjohnson";
-            string email = "dev.ed.readme@outlook.com";
-            
-            app.UseMiddleware<RequestResponseLogger>(apiKey, label, email);
 
+            app.UseMiddleware<RequestResponseLogger>();
 
             if (env.IsDevelopment())
             {
