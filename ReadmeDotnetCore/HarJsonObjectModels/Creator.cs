@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace APILoggingLibrary.HarJsonObjectModels
+namespace ReadmeDotnetCore.HarJsonObjectModels
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     class Creator

@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace APILoggingLibrary.HarJsonObjectModels
+namespace ReadmeDotnetCore.HarJsonObjectModels
 {
     class RequestProcessor
     {
@@ -102,8 +101,8 @@ namespace APILoggingLibrary.HarJsonObjectModels
             return postData;
         }
 
-        private bool CheckAllowList(string key) => (_configValues.options.allowList.Any(v => v == key)) ? true : false;
-        private bool CheckDenyList(string key) => (_configValues.options.denyList.Any(v => v == key)) ? true : false;
+        private bool CheckAllowList(string key) => (_configValues.options.allowList.Any(v => v.Trim().ToLower() == key.Trim().ToLower())) ? true : false;
+        private bool CheckDenyList(string key) => (_configValues.options.denyList.Any(v => v.Trim().ToLower() == key.Trim().ToLower())) ? true : false;
 
 
         private async Task<string> GetRequestBodyData()
@@ -127,10 +126,34 @@ namespace APILoggingLibrary.HarJsonObjectModels
             {
                 foreach (var reqHeader in _request.Headers)
                 {  
-                    Headers header = new Headers();
-                    header.name = reqHeader.Key;
-                    header.value = reqHeader.Value;
-                    headers.Add(header);
+                    
+                    if (!_configValues.options.isAllowListEmpty)
+                    {
+                        if (CheckAllowList(reqHeader.Key))
+                        {
+                            Headers header = new Headers();
+                            header.name = reqHeader.Key;
+                            header.value = reqHeader.Value;
+                            headers.Add(header);
+                        }
+                    }
+                    else if (!_configValues.options.isDenyListEmpty)
+                    {
+                        if (!CheckDenyList(reqHeader.Key))
+                        {
+                            Headers header = new Headers();
+                            header.name = reqHeader.Key;
+                            header.value = reqHeader.Value;
+                            headers.Add(header);
+                        }
+                    }
+                    else
+                    {
+                        Headers header = new Headers();
+                        header.name = reqHeader.Key;
+                        header.value = reqHeader.Value;
+                        headers.Add(header);
+                    }
                 }
             }
             return headers;

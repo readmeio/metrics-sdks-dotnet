@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace APILoggingLibrary.HarJsonObjectModels
+namespace ReadmeDotnetCore.HarJsonObjectModels
 {
     class ResponseProcessor
     {
@@ -144,8 +144,10 @@ namespace APILoggingLibrary.HarJsonObjectModels
             return "";
         }
 
-        private bool CheckAllowList(string key) => (_configValues.options.allowList.Any(v => v == key)) ? true : false;
-        private bool CheckDenyList(string key) => (_configValues.options.denyList.Any(v => v == key)) ? true : false;
+
+
+        private bool CheckAllowList(string key) => (_configValues.options.allowList.Any(v => v.Trim().ToLower() == key.Trim().ToLower())) ? true : false;
+        private bool CheckDenyList(string key) => (_configValues.options.denyList.Any(v => v.Trim().ToLower() == key.Trim().ToLower())) ? true : false;
 
     }
 }

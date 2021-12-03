@@ -1,9 +1,7 @@
-﻿
-
-using APILoggingLibrary.HarJsonObjectModels;
+﻿using ReadmeDotnetCore.HarJsonObjectModels;
 using System.Collections.Generic;
 
-namespace APILoggingLibrary
+namespace ReadmeDotnetCore
 {
     public class ConfigValues
     {
@@ -18,8 +16,8 @@ namespace APILoggingLibrary
         public bool isAllowListEmpty { get; set; }
         public List<string> denyList { get; set; }
         public bool isDenyListEmpty { get; set; }
-        public bool development { get; set; }
-        public int bufferLength { get; set; }
-        public string baseLogUrl { get; set; }
+        public bool development { get; set; } = false;
+        public int bufferLength { get; set; } = 1;
+        public string baseLogUrl { get; set; } = "https://example.readme.com";
     }
 }

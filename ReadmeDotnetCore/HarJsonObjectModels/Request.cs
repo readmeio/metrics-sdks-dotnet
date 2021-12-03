@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace APILoggingLibrary.HarJsonObjectModels
+namespace ReadmeDotnetCore.HarJsonObjectModels
 {
     class Request
     {

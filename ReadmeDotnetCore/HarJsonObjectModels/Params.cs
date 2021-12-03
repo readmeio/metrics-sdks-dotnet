@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace APILoggingLibrary.HarJsonObjectModels
+namespace ReadmeDotnetCore.HarJsonObjectModels
 {
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
     class Params

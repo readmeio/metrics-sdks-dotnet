@@ -1,4 +1,4 @@
-﻿namespace APILoggingLibrary.HarJsonObjectModels
+﻿namespace ReadmeDotnetCore.HarJsonObjectModels
 {
     class Timing
     {

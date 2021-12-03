@@ -4,7 +4,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace APILoggingLibrary.HarJsonTranslationLogics
+namespace ReadmeDotnetCore.HarJsonTranslationLogics
 {
     class ReadmeApiCaller
     {
@@ -24,7 +24,6 @@ namespace APILoggingLibrary.HarJsonTranslationLogics
                 var client = new RestClient(ConstValues.pageRef);
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("Content-Type", "application/json");
-
                 string apiKey = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(_apiKey + ":"));
                 //Basic V3RCbllRYWg4Vzh0TWdmOEVoV1NsQlVTSFN0V3kzTHc6
                 request.AddHeader("Authorization", apiKey);

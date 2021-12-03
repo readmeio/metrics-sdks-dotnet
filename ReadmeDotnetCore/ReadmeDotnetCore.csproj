@@ -3,6 +3,8 @@
   <PropertyGroup>
 	  <TargetFramework>netcoreapp3.1</TargetFramework>
 	  <PackageLicenseExpression></PackageLicenseExpression>
+	  <Company>Readme</Company>
+	  <Authors>Readme</Authors>
   </PropertyGroup>
 
 
