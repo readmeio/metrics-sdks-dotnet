@@ -5,6 +5,10 @@
 	  <PackageLicenseExpression></PackageLicenseExpression>
 	  <Company>Readme</Company>
 	  <Authors>Readme</Authors>
+	  <PackageId>readme.dotnetcore</PackageId>
+	  <Product>Readme Metrics Library</Product>
+	  <Description>The Metrics API gives you access to usage data for your API and hub, so you can make more data-driven decisions around your platform and API roadmap. Many of the metrics that you can get using this API are also available as visualizations directly in ReadMe in our Metrics charts.
+</Description>
   </PropertyGroup>
 
 
