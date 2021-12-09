@@ -63,7 +63,8 @@ namespace ReadmeDotnetCore.HarJsonTranslationLogics
             List<Entries> entries = new List<Entries>();
 
             Entries entry = new Entries();
-            entry.pageref = _configValues.options.baseLogUrl + "/users/" + guid;
+            //entry.pageref = _configValues.options.baseLogUrl + "/users/" + guid;
+            entry.pageref = _context.Request.Scheme + "://" + _context.Request.Host.Host + ":" + _context.Request.Host.Port + "" + _context.Request.Path;
             entry.startedDateTime = _startDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
             entry.cache = null;
             entry.timing = new Timing { wait = ConstValues.wait, receive = ConstValues.receive };
@@ -88,6 +89,7 @@ namespace ReadmeDotnetCore.HarJsonTranslationLogics
                 await _next.Invoke(_context);
 
                 string responseBodyData = await ProcessResponseBody(_context);
+                _context.Response.Headers.Add("x-documentation-url", _configValues.options.baseLogUrl+"/logs/"+guid);
                 ResponseProcessor responseProcessor = new ResponseProcessor(_context.Response, responseBodyData, _configValues);
                 response = responseProcessor.ProcessResponse();
 
@@ -95,7 +97,6 @@ namespace ReadmeDotnetCore.HarJsonTranslationLogics
             }
             return response;
         }
-
 
         private Creator BuildCreator()
         {
