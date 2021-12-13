@@ -11,17 +11,25 @@ namespace ReadmeDotnetCore
     {
         private readonly RequestDelegate _next;
         private readonly IConfiguration _configuration;
+        private Group _group;
 
         public RequestResponseLogger(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
-            _configuration = configuration;
+            _configuration = configuration;  
         }
 
         public async Task InvokeAsync(HttpContext context)
-        {
+        {         
             if (!context.Request.Path.Value.Contains("favicon.ico"))
             {
+                _group = new Group()
+                {
+                    id = (context.Items.Keys.Contains("apiKey") == true) ? context.Items["apiKey"].ToString() : null,
+                    label = (context.Items.Keys.Contains("label") == true) ? context.Items["label"].ToString() : null,
+                    email = (context.Items.Keys.Contains("email") == true) ? context.Items["email"].ToString() : null
+                };
+
                 ConfigValues configValues = GetConfigValues();
                 if(configValues != null)
                 {
@@ -63,13 +71,8 @@ namespace ReadmeDotnetCore
             {
                 return null;
             }
+            configValues.group = _group;
 
-            configValues.group = new Group
-            {
-                id = readme.GetSection("group").GetSection("apiKey").Value,
-                label = readme.GetSection("group").GetSection("label").Value,
-                email = readme.GetSection("group").GetSection("email").Value
-            };
             var options = readme.GetSection("options");
             var denyList = options.GetSection("denyList").GetChildren();
             var allowList = options.GetSection("allowList").GetChildren();

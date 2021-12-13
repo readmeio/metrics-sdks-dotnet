@@ -21,7 +21,7 @@ namespace ReadmeDotnetCore.HarJsonTranslationLogics
         {
             try
             {
-                var client = new RestClient(ConstValues.pageRef);
+                var client = new RestClient(ConstValues.readmeApiEndpoints);
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("Content-Type", "application/json");
                 string apiKey = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(_apiKey + ":"));
