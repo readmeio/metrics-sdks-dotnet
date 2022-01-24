@@ -8,7 +8,7 @@
 ## Overview
 With ReadMe's Metrics API your team can get deep insights into your API's usage. If you're a developer, it's super easy to send your API logs to ReadMe, so your team can get deep insights into your API's usage. Here's an overview of how the integration works:
 
-- Add the `Readme.Metrics nuget` package to your API server and integrate the middleware
+- Add the `Readme.Metrics` nuget package to your API server and integrate the middleware
 - The .net SDK sends ReadMe the details of your API's incoming requests and outgoing responses, with the option for you to redact any private parameters or headers
 - ReadMe uses these request and response details to create an API Metrics Dashboard which can be used to analyze specific API calls or monitor aggregate usage data.
 
@@ -20,9 +20,8 @@ With ReadMe's Metrics API your team can get deep insights into your API's usage.
 nuget install Readme.Metrics
 ```
 
-2. Add custom middleware to extract grouping data from the API request. 
+2. Find the file that creates your `app`. This is often in a `Startup.cs` or `Program.cs` file, located in your root directory. Find the `Configure` method, and add the following line before the routing is enabled. For full details on each option, read more about the [Group Object](#group-object).
 
-See [Group Object](#group-object) for more details.
 
 ```cs
 app.Use(async (context, next) =>
@@ -37,19 +36,15 @@ app.Use(async (context, next) =>
 });
 ```
 
-2. Add the logging middleware to your API server.
 
-Locate and open the file that creates your `app`. This is often in a `Startup.cs` or `Program.cs` file, located in your root directory.
-
-Find the `Configure` method, and add the following line before the routing is enabled.
+2. Add the logging middleware to your API server. This will be added immediately after your custom middleware from step 2.
 
 ```cs
 app.UseMiddleware<Readme.Metrics>();
 ```
 
 
-3. Configure your API key
-Locate `appsettings.json` in the root directory of your Application. Add the following JSON to your configuration and fill in any applicable values.
+3. Locate `appsettings.json` in the root directory of your Application. Add the following JSON to your configuration and fill in any applicable values. For full details on each option read more about the [Readme Object in appsettings.json](readme-object-in-appsettingsjson)
 ```javascript
 "readme": {
     "apiKey": "<Your Readme API Key>",
@@ -61,6 +56,8 @@ Locate `appsettings.json` in the root directory of your Application. Add the fol
     }
 }
 ```
+
+For a full example take a look at our example project: https://github.com/readmeio/metrics-sdks-dotnet/blob/6794e99c86e608f90a8e6c6d1357bd73b4d1de75/RequestResponseLoggingMiddlewareAPI/Startup.cs#L23
 
 ## Asp.Net Core Middleware Reference
 ### Group Object
