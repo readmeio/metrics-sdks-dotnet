@@ -6,15 +6,15 @@
 - [ASP.NET Core Middleware Reference](#aspnet-core-middleware-reference)
 
 ## Overview
-With ReadMe's Metrics API your team can get deep insights into your API's usage. If you're a developer, it's super easy to send your API logs to ReadMe, so your team can get deep insights into your API's usage. Here's an overview of how the integration works:
+With ReadMe's Metrics API your team can get deep insights into your API's usage. If you're a developer, it's super easy to send your API logs to ReadMe, Here's an overview of how the integration works:
 
-- Add the `Readme.Metrics` nuget package to your API server and integrate the middleware
-- The .net SDK sends ReadMe the details of your API's incoming requests and outgoing responses, with the option for you to redact any private parameters or headers
-- ReadMe uses these request and response details to create an API Metrics Dashboard which can be used to analyze specific API calls or monitor aggregate usage data.
+- Add the `Readme.Metrics` NuGet package to your API server and integrate the middleware.
+- The .NET SDK sends ReadMe the details of your API's incoming requests and outgoing responses, with the option for you to redact any private parameters or headers.
+- ReadMe uses these request and response details to create an API Metrics Dashboard which can be used to analyze specific API calls or monitor aggregate usage data. Additionally, if your users log into your API documentation we'll show them logs of the requests they made!
 
 ## ASP.NET Core Integration
 
-1. Install the Readme.Metrics nuget package using [Visual Studio, VS Code](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools) or the following command
+1. Install the `Readme.Metrics` NuGet package using [Visual Studio, VS Code](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools) or the following command:
 
 ```shell
 nuget install Readme.Metrics
@@ -37,20 +37,21 @@ app.Use(async (context, next) =>
 ```
 
 
-2. Add the logging middleware to your API server. This will be added immediately after your custom middleware from step 2.
+3. Add the logging middleware to your API server. This will be added immediately after your custom middleware from step 2.
 
 ```cs
 app.UseMiddleware<Readme.Metrics>();
 ```
 
 
-3. Locate `appsettings.json` in the root directory of your Application. Add the following JSON to your configuration and fill in any applicable values. For full details on each option read more about the [Readme Object in appsettings.json](readme-object-in-appsettingsjson)
+4. Locate `appsettings.json` in the root directory of your Application. Add the following JSON to your configuration and fill in any applicable values. For full details on each option read more about the [ReadMe Object in appsettings.json](readme-object-in-appsettingsjson)
+
 ```javascript
 "readme": {
     "apiKey": "<Your Readme API Key>",
     "options": {
-        "allowList": [ "<Any parameters you want allow listed. See docs>" ],
-        "denyList": [ "<Any parameters you want deny listed. See docs>"],
+        "allowList": [ "<Any parameters you want allowed in your log. See docs>" ],
+        "denyList": [ "<Any parameters you want removed from your log. See docs>"],
         "development": true, // Where to bucket your data, development or production
         "baseLogUrl": "https://example.readme.com" // Your ReadMe website's base url
     }
@@ -61,24 +62,30 @@ For a full example take a look at our example project: https://github.com/readme
 
 ## ASP.NET Core Middleware Reference
 ### Group Object
-API creator will extract group data from Http Request and will initialize HttpContext items.The group object contains three values i.e apiKey, label and email. While only apiKey is required, we recommend providing all three values to get the most out of the metrics dashboard.
+Before assigning the `Readme.Metrics` middleware you should assign custom middleware to extract certain grouping parameters, as seen in step 2 of the [ASP.NET Core Integration](aspnet-core-integration). The grouping parameters includes three values: `apiKey`, `label` and `email`. While only `apiKey` is required, we recommend providing all three values to get the most out of the metrics dashboard.
 
 Field  | Required? | Type   | Usage
 -------|-----------|--------|------------
-`apiKey` | yes       | string | API Key used to make the request. Note that this is different from the `readmeAPIKey` described above and should be a value from your API that is unique to each of your users.
-`label`  | no        | string | This will be the user's display name in the API Metrics Dashboard, since it's much easier to remember a name than an API key.
+`apiKey` | yes       | string | API Key used to make the request. Note that this is different from the `readmeAPIKey` described above and should be a value from your API that is unique to each of your users, not part of ReadMe's API.
+`label`  | no        | string | This will be the users' display name in the API Metrics Dashboard, as it's much easier to remember a name than an API key.
 `email`  | no        | string | Email of the user that is making the call.
 
 Example:
-```javascript
-app.use(readme.express(readmeAPIKey, req => ({
-  apiKey: req.<apiKey>, // You might extract this from a header or parameter
-  label: req.<userNameToShowInDashboard>, // You might extract this from user data associated with the API key
-  email: req.<userEmailAddress>, // You might extract this from user data associated with the API key
-})));
+
+```cs
+app.Use(async (context, next) =>
+{
+    HttpRequest req = context.Request;
+
+    context.Items["apiKey"] = <Extract API users API key from the request>
+    context.Items["label"] = <Extract API users display name from the request>
+    context.Items["email"] = <Extract API users email address from the request>
+
+    await next();
+});
 ```
 
-### Readme Object in appsettings.json
+### ReadMe Object in appsettings.json
 The ASP.NET Core middleware extracts the following parameters from appsettings.json file:
 
 `Parameter`    | Required? | Description
@@ -106,6 +113,7 @@ Example:
         "development": true,
         "baseLogUrl": "https://example.readme.com"
     }
+}
 ```
 
 ### Documentation URL
