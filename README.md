@@ -105,11 +105,11 @@ This is an optional object used to restrict traffic being sent to readme server 
 `baseLogUrl`       | string           | This value is used when building the `x-documentation-url` header (see docs [below](#documentation-url)). It is your ReadMe documentation's base URL (e.g. `https://example.readme.com`). If not provided, we will make one API call a day to determine your base URL (more info in [Documentation URL](#documentation-url). If provided, we will use that value and never look it up automatically.
 
 Example:
-```javascript
+```json
 {
-    "apiKey": 'abcd123',
+    "apiKey": "abcd123",
     "options": {
-        "denyList": ['password', 'secret'],
+        "denyList": ["password", "secret"],
         "development": true,
         "baseLogUrl": "https://example.readme.com"
     }
