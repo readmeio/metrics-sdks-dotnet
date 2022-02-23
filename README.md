@@ -127,7 +127,7 @@ Make sure to supply a `baseLogUrl` option into your readme settings, which shoul
 ## Troubleshooting
 1. If you have the `development` flag set in your configuration, you can only view these logs on your dashboard (https://dash.readme.com/project/{your_project}/v1.0/overview with your subdomain instead of `{your_project}`) by clicking the gear icon in the top right and toggling on "Development Data".
 2. If you're still having issues, write into support with the following information:
-    - The version of .net you are using.
+    - The version of .NET you are using.
     - The value of the `x-documentation-url` header that is returned from calls to your API, or the GUID generated for your log.
     
     Additionally, it would be useful to include:
